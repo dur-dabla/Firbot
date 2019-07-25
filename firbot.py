@@ -35,8 +35,10 @@ async def on_ready():
         raise
 
     for line in lines.split('\n'):
-        # Ignore blank lines
-        if not line.strip():
+        line = line.strip()
+
+        # Ignore blank lines and comments
+        if not line or line.startswith('#'):
             continue
 
         # Schedule tasks for valid lines
