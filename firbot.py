@@ -10,6 +10,7 @@ import discord
 from crontab import CronTab
 
 client = discord.Client()
+running_tasks = []
 
 async def send_message(interval, channel, text):
     await client.wait_until_ready()
@@ -18,12 +19,20 @@ async def send_message(interval, channel, text):
         await asyncio.sleep(cron.next())
         try:
             await channel.send(text)
+        except asyncio.CancelledError:
+            print(f"Cancelling task with interval {interval}")
+            raise
         except Exception:
             print(f"Could not send `{text}` to `{channel}:`")
             traceback.format_exc()
 
 @client.event
 async def on_ready():
+    # Cancel running tasks if any
+    for task in running_tasks:
+        task.cancel()
+    del running_tasks[:]
+
     try:
         # Read data from the configuration file
         cron_file = Path(__file__).parent / 'cron.tab'
@@ -51,7 +60,8 @@ async def on_ready():
             text = text.strip()
 
             print(f'Scheduling `{text}` with schedule `{interval.strip()}`')
-            client.loop.create_task(send_message(interval, channel, text))
+            task = client.loop.create_task(send_message(interval, channel, text))
+            running_tasks.append(task)
         except Exception as err:
             print('Could not schedule task:')
             traceback.format_exc()
