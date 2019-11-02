@@ -1,6 +1,7 @@
 #!/usr/bin/env python 
 #-*- coding: utf-8 -*-
 
+import re
 import asyncio
 import os
 import traceback
@@ -9,8 +10,12 @@ from pathlib import Path
 import discord
 from crontab import CronTab
 
+import aiml
+
 client = discord.Client()
 running_tasks = []
+
+k = aiml.Kernel()
 
 async def send_message(interval, channel, text):
     await client.wait_until_ready()
@@ -67,4 +72,17 @@ async def on_ready():
             traceback.format_exc()
             raise
 
+@client.event
+async def on_message(message):
+    # we do not want the bot to reply to itself
+    if message.author == client.user:
+        return
+
+    if client.user.id in list(map(lambda m: m.id, message.mentions)):
+        clearedMsg = re.sub('<@.*?>', '', message.content).strip()
+        answer = k.respond(clearedMsg)
+        await message.channel.send(answer)
+
+k.learn("startup-french.xml")
+k.respond("load aiml b")
 client.run(os.environ['FIRBOT_TOKEN'])
