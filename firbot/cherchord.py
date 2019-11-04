@@ -12,8 +12,12 @@ def run_cherchord(*args) -> str:
     :return: result of cherchord
     """
     try:
+        # Run cherchord
         res = subprocess.run(['cherchord', *args], check=True, capture_output=True)
-        res = res.stdout
+        # Strip unneeded information
+        res = res.stdout.decode('utf-8')
+        res = '\n'.join(res.splitlines()[3:])
+        # Add Discord code tags
+        return "```" + res + "```"
     except subprocess.CalledProcessError as err:
-        res = err.stderr
-    return res.decode('utf-8')
+        return err.stderr.decode('utf-8')
