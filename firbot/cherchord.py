@@ -13,6 +13,7 @@ def run_cherchord(*args) -> str:
     """
     try:
         res = subprocess.run(['cherchord', *args], check=True, capture_output=True)
-        return res.stdout
+        res = res.stdout
     except subprocess.CalledProcessError as err:
-        return err.stderr
+        res = err.stderr
+    return res.decode('utf-8')
