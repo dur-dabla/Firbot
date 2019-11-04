@@ -16,7 +16,7 @@ def run_cherchord(*args) -> str:
         res = subprocess.run(['cherchord', *args], check=True, capture_output=True)
         # Decode & strip unneeded information
         res = res.stdout.decode('utf-8')
-        res = '\n'.join(res.splitlines()[3:])[3:]
+        res = '\n'.join(res.splitlines()[3:])[4:]
 
         # Split tab lines in several messages to avoid the Discord character limit
         for res_line in res.split('\n\n'):
