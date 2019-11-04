@@ -1,16 +1,19 @@
 #!/usr/bin/env python 
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import asyncio
+import importlib.resources
 import os
 import traceback
-from pathlib import Path
 
-import discord
+import discord.ext.commands
 from crontab import CronTab
 
-client = discord.Client()
+import firbot.data
+
+client = discord.ext.commands.Bot(command_prefix='!')
 running_tasks = []
+
 
 async def send_message(interval, channel, text):
     await client.wait_until_ready()
@@ -26,6 +29,7 @@ async def send_message(interval, channel, text):
             print(f"Could not send `{text}` to `{channel}:`")
             traceback.format_exc()
 
+
 @client.event
 async def on_ready():
     # Cancel running tasks if any
@@ -35,15 +39,13 @@ async def on_ready():
 
     try:
         # Read data from the configuration file
-        cron_file = Path(__file__).parent / 'cron.tab'
-        with cron_file.open() as fd:
-            lines = fd.read()
+        cron_lines = importlib.resources.read_text(firbot.data, 'cron.tab')
     except Exception:
         print("Failed to read the configuration file")
         traceback.format_exc()
         raise
 
-    for line in lines.split('\n'):
+    for line in cron_lines.split('\n'):
         line = line.strip()
 
         # Ignore blank lines and comments
@@ -62,9 +64,10 @@ async def on_ready():
             print(f'Scheduling `{text}` with schedule `{interval.strip()}`')
             task = client.loop.create_task(send_message(interval, channel, text))
             running_tasks.append(task)
-        except Exception as err:
+        except Exception:
             print('Could not schedule task:')
             traceback.format_exc()
             raise
+
 
 client.run(os.environ['FIRBOT_TOKEN'])

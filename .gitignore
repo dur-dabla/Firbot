@@ -1,3 +1,7 @@
 cron.tab
 *.log
-
+venv
+dist
+build
+.idea
+*.egg-info
