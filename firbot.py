@@ -2,11 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
+import datetime
 import importlib.resources
 import os
 import traceback
 
 import discord.ext.commands
+import pytz
 from crontab import CronTab
 
 import firbot.data
@@ -20,7 +22,8 @@ async def send_message(interval, channel, text):
     await bot.wait_until_ready()
     cron = CronTab(interval)
     while True:
-        await asyncio.sleep(cron.next())
+        now = datetime.datetime.now(pytz.timezone("Europe/Paris"))
+        await asyncio.sleep(cron.next(now=now))
         try:
             await channel.send(text)
         except asyncio.CancelledError:

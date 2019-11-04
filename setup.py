@@ -13,6 +13,7 @@ setup(
    packages=['firbot'],
    install_requires=[
        'crontab',
-       'discord'
+       'discord',
+       'pytz'
    ]
 )
