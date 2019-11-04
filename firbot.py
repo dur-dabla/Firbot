@@ -10,13 +10,14 @@ import discord.ext.commands
 from crontab import CronTab
 
 import firbot.data
+from firbot.cherchord import run_cherchord
 
-client = discord.ext.commands.Bot(command_prefix='!')
+bot = discord.ext.commands.Bot(command_prefix='!')
 running_tasks = []
 
 
 async def send_message(interval, channel, text):
-    await client.wait_until_ready()
+    await bot.wait_until_ready()
     cron = CronTab(interval)
     while True:
         await asyncio.sleep(cron.next())
@@ -30,7 +31,7 @@ async def send_message(interval, channel, text):
             traceback.format_exc()
 
 
-@client.event
+@bot.event
 async def on_ready():
     # Cancel running tasks if any
     for task in running_tasks:
@@ -56,13 +57,13 @@ async def on_ready():
         try:
             interval, channel, text = line.split(',', 2)
 
-            await client.wait_until_ready()
-            channel = client.get_channel(int(channel.strip()))
+            await bot.wait_until_ready()
+            channel = bot.get_channel(int(channel.strip()))
             print(f"Found channel: {channel.name}, {channel.id}")
             text = text.strip()
 
             print(f'Scheduling `{text}` with schedule `{interval.strip()}`')
-            task = client.loop.create_task(send_message(interval, channel, text))
+            task = bot.loop.create_task(send_message(interval, channel, text))
             running_tasks.append(task)
         except Exception:
             print('Could not schedule task:')
@@ -70,4 +71,9 @@ async def on_ready():
             raise
 
 
-client.run(os.environ['FIRBOT_TOKEN'])
+@bot.command()
+async def cherchord(context, *args):
+    await context.send(run_cherchord(*args))
+
+
+bot.run(os.environ['FIRBOT_TOKEN'])
