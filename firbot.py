@@ -73,7 +73,8 @@ async def on_ready():
 
 @bot.command()
 async def cherchord(context, *args):
-    await context.send(run_cherchord(*args))
+    for line in run_cherchord(*args):
+        await context.send(line)
 
 
 bot.run(os.environ['FIRBOT_TOKEN'])

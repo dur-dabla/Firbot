@@ -14,10 +14,14 @@ def run_cherchord(*args) -> str:
     try:
         # Run cherchord
         res = subprocess.run(['cherchord', *args], check=True, capture_output=True)
-        # Strip unneeded information
+        # Decode & strip unneeded information
         res = res.stdout.decode('utf-8')
-        res = '\n'.join(res.splitlines()[3:])
-        # Add Discord code tags
-        return "```" + res + "```"
+        res = '\n'.join(res.splitlines()[3:])[3:]
+
+        # Split tab lines in several messages to avoid the Discord character limit
+        for res_line in res.split('\n\n'):
+            # Add Discord code tags
+            yield ("```" + res_line + "```").strip()
+
     except subprocess.CalledProcessError as err:
-        return err.stderr.decode('utf-8')
+        yield err.stderr.decode('utf-8')
