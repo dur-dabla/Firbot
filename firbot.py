@@ -11,8 +11,8 @@ import discord.ext.commands
 import pytz
 from crontab import CronTab
 
+import firbot.cherchord
 import firbot.data
-from firbot.cherchord import run_cherchord
 
 bot = discord.ext.commands.Bot(command_prefix='!')
 running_tasks = []
@@ -76,7 +76,7 @@ async def on_ready():
 
 @bot.command()
 async def cherchord(context, *args):
-    for line in run_cherchord(*args):
+    for line in firbot.cherchord.cherchord(*args):
         await context.send(line)
 
 
