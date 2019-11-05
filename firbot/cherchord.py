@@ -17,7 +17,7 @@ class Cherchord:
     def __init__(self):
         # Load instruments file
         with importlib.resources.open_text(firbot.data, 'cherchord-config.json') as fd:
-            self.instruments = json.load(fd)['instruments']
+            self.instruments: dict = json.load(fd)['instruments']
 
     def __call__(self, *args) -> str:
         """
@@ -27,6 +27,13 @@ class Cherchord:
         :param args: list of arguments to forward to cherchord
         :return: result of cherchord
         """
+        # Custom arguments
+        if len(args) == 1 and args[0] == '--instruments':
+            yield "Instruments :\n" + '\n'.join([
+                f'\N{EN DASH} {instrument} : `{notes}`'
+                for instrument, notes in self.instruments.items()
+            ])
+            return
         args = self.replace_instrument(args)
 
         try:
