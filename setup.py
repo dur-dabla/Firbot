@@ -12,6 +12,7 @@ setup(
    author='Dur Dabla',
    packages=['firbot'],
    install_requires=[
+       'ansicolors',
        'crontab',
        'discord',
        'pytz'

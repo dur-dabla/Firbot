@@ -2,6 +2,8 @@
 
 import subprocess
 
+import colors
+
 
 def run_cherchord(*args) -> str:
     """
@@ -15,8 +17,7 @@ def run_cherchord(*args) -> str:
         # Run cherchord
         res = subprocess.run(['cherchord', *args], check=True, capture_output=True)
         # Decode & strip unneeded information
-        res = res.stdout.decode('utf-8')
-        res = '\n'.join(res.splitlines()[3:])[4:]
+        res = colors.strip_color(res.stdout.decode('utf-8'))
 
         # Split tab lines in several messages to avoid the Discord character limit
         for res_line in res.split('\n\n'):
