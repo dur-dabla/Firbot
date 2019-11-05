@@ -21,8 +21,12 @@ def run_cherchord(*args) -> str:
 
         # Split tab lines in several messages to avoid the Discord character limit
         for res_line in res.split('\n\n'):
+            res_line = res_line.rstrip()
+            # Ignore empty lines
+            if len(res_line) == 0:
+                continue
             # Add Discord code tags
-            yield ("```" + res_line + "```").strip()
+            yield "```" + res_line + "```"
 
     except subprocess.CalledProcessError as err:
         yield err.stderr.decode('utf-8')
