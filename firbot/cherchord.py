@@ -144,19 +144,18 @@ class Cherchord:
         semitones. A positive amount of semitones will tune up while a negative
         amount thereof will tune down.
 
-        :param string: string representation (ex: D14)
+        :param string: string representation (format <note><num_frets>)
         :param semitones: number of semitones to tune up
         :return: tuned string representation
         """
-        # Compute the absolute note representation as an integral
+        # Parse the note representation in <note><num_frets> format
         cutoff = 2 if string[1] == 'b' else 1
         note = cls.__note_str_to_int[string[:cutoff]]
-        level = int(string[cutoff:])
-        abs_note = 12 * level + note
+        num_frets = string[cutoff:]
 
         # Compute new string representation
-        new_level, new_note = divmod(abs_note + semitones, 12)
-        return cls.__note_int_to_str[new_note] + str(new_level)
+        new_note = (note + semitones) % 12
+        return cls.__note_int_to_str[new_note] + num_frets
 
 
 # Single instance
