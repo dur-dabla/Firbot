@@ -1,10 +1,10 @@
 {
     "instruments": {
         "guitar": "E16,A16,D16,G16,B16,E16",
-        "guitar-d": "D14,G14,C14,F14,A14,D14",
         "ukulele": "G14,C14,E14,A14",
-        "mandolin": "G16,D16,A16,E16",
+        "mandolin": "G12,D12,A12,E12",
         "bouzouki": "C16,F16,A16,D16",
-        "baglamas": "D14,A14,D14"
+        "baglamas": "D14,A14,D14",
+        "banjo": "G12,D12,A12,E12"
     }
 }
