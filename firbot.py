@@ -11,6 +11,7 @@ import discord.ext.commands
 import pytz
 from crontab import CronTab
 
+import firbot.midiplayer
 import firbot.cherchord
 import firbot.data
 
@@ -79,5 +80,38 @@ async def cherchord(context, *args):
     for line in firbot.cherchord.cherchord(*args):
         await context.send(line)
 
+
+@bot.command()
+async def play(context, *args):
+    """Play a midi file"""
+    error = False
+    print(f"Handle play [{args}]")
+    voice_channel = None
+    if not context.author.voice is None:
+        voice_channel = context.author.voice.channel
+        if not voice_channel is None:
+            print(f"Playing on channel [{voice_channel.name}]")
+            vc = await voice_channel.connect()
+            stream = firbot.midiplayer.midiplayer.read(*args)
+            src = discord.FFmpegPCMAudio(stream, pipe=True)
+            vc.play(src)
+    else:
+        error_msg = "You must be connected to a voice channel before to run this command."
+
+    if not error_msg is None:
+        await context.channel.send(error_msg)
+
+@bot.command()
+async def stop(context, *args):
+    """Stop and disconnect all voice channels """
+    print(f"Handle stop")
+    for i,vc in enumerate(bot.voice_clients):
+        print(f"VoiceClient {i} :")
+        if not vc.channel is None:
+            print(f"`- Connected on {vc.channel.name}")
+            print(f"`- Stopping music`")
+            vc.stop()
+            print(f"`- Disconnecting from channel`")
+            await vc.disconnect()
 
 bot.run(os.environ['FIRBOT_TOKEN'])
