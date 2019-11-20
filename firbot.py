@@ -15,6 +15,8 @@ import firbot.midiplayer
 import firbot.cherchord
 import firbot.data
 
+ADMIN_ROLE = "FirbotMaster"
+
 bot = discord.ext.commands.Bot(command_prefix='!')
 running_tasks = []
 
@@ -80,6 +82,14 @@ async def cherchord(context, *args):
     for line in firbot.cherchord.cherchord(*args):
         await context.send(line)
 
+@bot.command()
+async def quit(context):
+    print(f"Handle quit")
+    if ADMIN_ROLE in list(map(lambda r: r.name, context.author.roles)):
+        await context.channel.send("Bye.")
+        await bot.logout()
+    else:
+        print(f'Member {context.author.name} not allowed to run this command.')
 
 @bot.command()
 async def play(context, *args):
