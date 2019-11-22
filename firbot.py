@@ -94,22 +94,19 @@ async def quit(context):
 @bot.command()
 async def play(context, *args):
     """Play a midi file"""
-    error = False
     print(f"Handle play [{args}]")
-    voice_channel = None
-    if not context.author.voice is None:
-        voice_channel = context.author.voice.channel
-        if not voice_channel is None:
-            print(f"Playing on channel [{voice_channel.name}]")
-            vc = await voice_channel.connect()
-            stream = firbot.midiplayer.midiplayer.read(*args)
-            src = discord.FFmpegPCMAudio(stream, pipe=True)
-            vc.play(src)
-    else:
-        error_msg = "You must be connected to a voice channel before to run this command."
 
-    if not error_msg is None:
-        await context.channel.send(error_msg)
+    if context.author.voice is None:
+        await context.channel.send(f"{context.author.mention} You must be connected to a voice channel before to run this command.")
+        return
+
+    voice_channel = context.author.voice.channel
+    if not voice_channel is None:
+        print(f"Playing on channel [{voice_channel.name}]")
+        vc = await voice_channel.connect()
+        stream = firbot.midiplayer.midiplayer.read(*args)
+        src = discord.FFmpegPCMAudio(stream, pipe=True)
+        vc.play(src)
 
 @bot.command()
 async def stop(context, *args):
