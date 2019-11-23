@@ -119,7 +119,7 @@ async def play(context, *args):
         voice_client = await author_voice_channel.connect()
 
     print(f"Playing on channel [{voice_client.channel.name}]")
-    stream = firbot.midiplayer.midiplayer.read(*args)
+    stream = firbot.midiplayer.midiplayer.read(args)
     src = discord.FFmpegPCMAudio(stream, pipe=True)
     voice_client.play(src)
 

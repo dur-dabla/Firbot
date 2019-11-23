@@ -27,14 +27,17 @@ class MidiPlayer:
             if path.basename(full_path) == song:
                 return full_path
 
-    def read(self, *args) -> io.BufferedIOBase:
+    def read(self, args) -> io.BufferedIOBase:
         """ Runs the sequencer subprocess and returns the standard output """
         song = args[0]
         path = self.get_full_path(song)
 
+        args = args[1:]
+
         print(f"Song: {song} => {path}")
-        print(f"Args: {list(args[1:])}")
-        seq_process = subprocess.Popen([self.SEQUENCER_CMD] + self.SEQUENCER_ARGS + [path] + list(args[1:]), stdout=subprocess.PIPE)
+        print(f"Args: {list(args)}")
+
+        seq_process = subprocess.Popen([self.SEQUENCER_CMD] + self.SEQUENCER_ARGS + [path] + list(args), stdout=subprocess.PIPE)
         return seq_process.stdout
 
     def list(self, args):
