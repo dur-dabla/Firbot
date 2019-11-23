@@ -139,7 +139,7 @@ async def stop(context, *args):
 @bot.command(name='list')
 async def listmid(context, *args):
     """List available midi files"""
-    for line in firbot.midiplayer.midiplayer.list():
+    for line in firbot.midiplayer.midiplayer.list(args):
         await context.send(line)
 
 

@@ -37,15 +37,24 @@ class MidiPlayer:
         seq_process = subprocess.Popen([self.SEQUENCER_CMD] + self.SEQUENCER_ARGS + [path] + list(args[1:]), stdout=subprocess.PIPE)
         return seq_process.stdout
 
-    def list(self):
+    def list(self, args):
+        available_categories = [dir for dir in os.listdir(self.MIDI_FILES_HOME) if path.isdir(path.join(self.MIDI_FILES_HOME, dir))]
+
+        if len(args) > 0:
+            if args[0] in available_categories:
+                categories = [args[0]]
+            else:
+                yield f"No such category : ``{args[0]}``."
+                return
+        else:
+            categories = available_categories
+
         yield "Playlist:"
-        categories = [dir for dir in os.listdir(self.MIDI_FILES_HOME) if path.isdir(path.join(self.MIDI_FILES_HOME, dir))]
         for cat in categories:
             yield f"> {cat}:"
             cat_dir = path.join(self.MIDI_FILES_HOME, cat)
             files = [f for f in os.listdir(cat_dir) if path.isfile(path.join(cat_dir, f)) and f.endswith(self.MID_EXT)]
-            yield '```markdown\n' + '- ' + '\n- '.join(files) + '```'
-
+            yield '```css\n' + '- ' + '\n- '.join(files) + '```'
 
 # Single instance
 midiplayer = MidiPlayer()
