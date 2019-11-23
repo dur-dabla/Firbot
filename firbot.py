@@ -142,11 +142,16 @@ async def stop(context, *args):
             print(f"`- Disconnecting from channel`")
             await vc.disconnect()
 
-@bot.command(name='list')
-async def listmid(context, *args):
+@bot.command()
+async def songs(context, *args):
     """List available midi files"""
-    for line in firbot.midiplayer.midiplayer.list(args):
+    for line in firbot.midiplayer.midiplayer.list_songs(args):
         await context.send(line)
 
+@bot.command()
+async def playlists(context, *args):
+    """List available playlists"""
+    for line in firbot.midiplayer.midiplayer.list_playlists(args):
+        await context.send(line)
 
 bot.run(os.environ['FIRBOT_TOKEN'])
