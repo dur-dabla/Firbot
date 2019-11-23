@@ -24,7 +24,7 @@ class MidiPlayer:
 
     def get_full_path(self, song):
         for full_path in glob.iglob(path.join(self.MIDI_FILES_HOME, '*', '*' + self.MID_EXT), recursive=True):
-            if path.basename(full_path) == song:
+            if path.basename(full_path).lower().startswith(song.lower()):
                 return full_path
 
     def read(self, args) -> io.BufferedIOBase:
@@ -36,6 +36,10 @@ class MidiPlayer:
 
         print(f"Song: {song} => {path}")
         print(f"Args: {list(args)}")
+
+        if path is None:
+            print(f"Song not found.")
+            return None
 
         seq_process = subprocess.Popen([self.SEQUENCER_CMD] + self.SEQUENCER_ARGS + [path] + list(args), stdout=subprocess.PIPE)
         return seq_process.stdout

@@ -120,6 +120,12 @@ async def play(context, *args):
 
     print(f"Playing on channel [{voice_client.channel.name}]")
     stream = firbot.midiplayer.midiplayer.read(args)
+
+    if stream is None:
+        await context.channel.send(f"{context.author.mention} Unable to play this song.")
+        await voice_client.disconnect()
+        return
+
     src = discord.FFmpegPCMAudio(stream, pipe=True)
     voice_client.play(src)
 
