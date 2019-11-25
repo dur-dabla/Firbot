@@ -3,6 +3,7 @@
 Firbot est un des bots du serveur privé Dur Dabla ; il remplit les fonctions suivantes :
 * Envoi de messages programmés via [cron][1]
 * Interface pour [cherchord][2] via la commande `!cherchord`
+* Interface pour [timidity][3] via la commande `!play`
 
 ### Installation & lancement du bot
 
@@ -53,6 +54,30 @@ La liste des instruments disponibles est notamment plus grande que celle fournie
 depuis le fichier de configuration `cherchord-config.json` du sous-répertoire `firbot/data`. Nous avons la main dessus
 donc il est toujours possible de rajouter plus d'instruments sans avoir à modifier le projet d'origine.
 
+### Interface pour timidity
+
+Firbot permet également de lire des fichiers MIDI dans un canal vocal. Pour ce faire il faut d'abord constituer des
+playlists dans le dossier ~/midi par exemple :
+```
+midi
+├── playlist1
+│   ├── song1.mid
+│   └── song2.mid
+└── playlist2
+    ├── song3.mid
+    └── song4.mid
+```
+Les commandes de recherche:
+- Pour lister les playlists utiliser la commande `!playlists`
+- Pour lister les morceaux la commande `!songs`
+- Pour lister les morceaux d'une catégorie `!songs <nom playlist>`
+
+Les commandes de contrôle:
+- Pour lire un morceau: `!play <nom fichier> [options]...`
+- Pour arrêter la lecture `!stop`
+
+La commande `!play` accepte les options de timidity, pour les consulter: `man timidity`
 
   [1]: https://fr.wikipedia.org/wiki/Cron
   [2]: https://github.com/Aearnus/cherchord
+  [3]: http://manpages.org/timidity
