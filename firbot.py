@@ -114,12 +114,26 @@ async def play(context, *args):
             # Another channel
             await vc.disconnect()
 
+    # Search the song
+    matching_songs = firbot.midiplayer.midiplayer.search_song(args[0])
+    matching_count = len(matching_songs)
+    if matching_count != 1:
+        if matching_count > 1:
+            await context.channel.send(f"{context.author.mention} Available songs matching `{args[0]}`:\n" + '```css\n' + '- ' + '\n- '.join(matching_songs) + '```\nPlease be more accurate.')
+        else:
+            await context.channel.send(f"{context.author.mention} No song matching `{args[0]}` found.")
+        return
+
+    song = matching_songs[0]
+    args = args[1:]
+
     # Connect to channel if not already connected
     if voice_client is None:
         voice_client = await author_voice_channel.connect()
 
     print(f"Playing on channel [{voice_client.channel.name}]")
-    stream = firbot.midiplayer.midiplayer.read(args)
+    await context.channel.send(f"Playing `{song}` on channel `#{voice_client.channel.name}`.")
+    stream = firbot.midiplayer.midiplayer.read(song, args)
 
     if stream is None:
         await context.channel.send(f"{context.author.mention} Unable to play this song.")
