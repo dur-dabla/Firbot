@@ -76,6 +76,9 @@ async def on_ready():
             traceback.format_exc()
             raise
 
+@bot.event
+async def on_message_edit(before, after):
+    await bot.process_commands(after)
 
 @bot.command()
 async def cherchord(context, *args):
