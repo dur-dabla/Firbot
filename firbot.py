@@ -148,8 +148,9 @@ async def play(context, *args):
 
 @bot.command()
 async def stop(context, *args):
-    """Stop and disconnect all voice channels """
+    """Stop the playback then stop and disconnect all voice clients"""
     print(f"Handle stop")
+    firbot.midiplayer.midiplayer.stop()
     for i,vc in enumerate(bot.voice_clients):
         print(f"VoiceClient {i} :")
         if not vc.channel is None:

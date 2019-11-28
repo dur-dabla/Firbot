@@ -22,6 +22,9 @@ class MidiPlayer:
     # Sequencer aruments
     SEQUENCER_ARGS = [ '--quiet', '--quiet', '-Ow', '-o', '-' ]
 
+    # Sequencer process
+    seq_process = None
+
     def is_matching(self, str_ref, str_find):
         return str_ref.lower().startswith(str_find.lower())
 
@@ -47,8 +50,14 @@ class MidiPlayer:
             print(f"Song not found.")
             return None
 
-        seq_process = subprocess.Popen([self.SEQUENCER_CMD] + self.SEQUENCER_ARGS + [path] + list(args), stdout=subprocess.PIPE)
-        return seq_process.stdout
+        self.seq_process = subprocess.Popen([self.SEQUENCER_CMD] + self.SEQUENCER_ARGS + [path] + list(args), stdout=subprocess.PIPE)
+        return self.seq_process.stdout
+
+    def stop(self):
+        """Sends SIGTERM to the sequencer process"""
+        if not self.seq_process is None:
+            self.seq_process.terminate()
+            self.seq_process = None
 
     def list_songs(self, args):
         available_categories = self.list_available_categories()
