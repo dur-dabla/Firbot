@@ -144,6 +144,7 @@ async def play(context, *args):
         return
 
     src = discord.FFmpegPCMAudio(stream, pipe=True)
+    await bot.change_presence(activity=discord.Game(os.path.basename(song)))
     voice_client.play(src)
 
 @bot.command()
@@ -151,6 +152,7 @@ async def stop(context, *args):
     """Stop the playback then stop and disconnect all voice clients"""
     print(f"Handle stop")
     firbot.midiplayer.midiplayer.stop()
+    await bot.change_presence(activity=None)
     for i,vc in enumerate(bot.voice_clients):
         print(f"VoiceClient {i} :")
         if not vc.channel is None:
