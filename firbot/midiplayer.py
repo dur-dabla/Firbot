@@ -50,12 +50,12 @@ class MidiPlayer:
             print(f"Song not found.")
             return None
 
-        self.seq_process = subprocess.Popen([self.SEQUENCER_CMD] + self.SEQUENCER_ARGS + [path] + list(args), stdout=subprocess.PIPE)
+        self.seq_process = subprocess.Popen([self.SEQUENCER_CMD, *self.SEQUENCER_ARGS, path, *args], stdout=subprocess.PIPE)
         return self.seq_process.stdout
 
     def stop(self):
         """Sends SIGTERM to the sequencer process"""
-        if not self.seq_process is None:
+        if self.seq_process is not None:
             self.seq_process.terminate()
             self.seq_process = None
 
