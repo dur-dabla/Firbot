@@ -94,6 +94,16 @@ async def quit(context):
     else:
         print(f'Member {context.author.name} not allowed to run this command.')
 
+def after_play(error):
+    print("Song finished.")
+    coro = bot.change_presence(activity=None)
+    fut = asyncio.run_coroutine_threadsafe(coro, bot.loop)
+    try:
+        fut.result()
+    except:
+        # an error happened changing the presence
+        pass
+
 @bot.command()
 async def play(context, *args):
     """Play a midi file"""
@@ -145,7 +155,7 @@ async def play(context, *args):
 
     src = discord.FFmpegPCMAudio(stream, pipe=True)
     await bot.change_presence(activity=discord.Game(os.path.basename(song)))
-    voice_client.play(src)
+    voice_client.play(src, after=after_play)
 
 @bot.command()
 async def stop(context, *args):
