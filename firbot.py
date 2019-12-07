@@ -11,7 +11,7 @@ import discord.ext.commands
 import pytz
 from crontab import CronTab
 
-import firbot.midiplayer
+from firbot.cogs.midiplayer.midiplayer import MidiPlayer
 import firbot.cherchord
 import firbot.data
 
@@ -19,7 +19,6 @@ ADMIN_ROLE = "FirbotMaster"
 
 bot = discord.ext.commands.Bot(command_prefix='!')
 running_tasks = []
-
 
 async def send_message(interval, channel, text):
     await bot.wait_until_ready()
@@ -35,7 +34,6 @@ async def send_message(interval, channel, text):
         except Exception:
             print(f"Could not send `{text}` to `{channel}:`")
             traceback.format_exc()
-
 
 @bot.event
 async def on_ready():
@@ -94,94 +92,6 @@ async def quit(context):
     else:
         print(f'Member {context.author.name} not allowed to run this command.')
 
-def after_play(error):
-    print("Song finished.")
-    coro = bot.change_presence(activity=None)
-    fut = asyncio.run_coroutine_threadsafe(coro, bot.loop)
-    try:
-        fut.result()
-    except:
-        # an error happened changing the presence
-        pass
-
-@bot.command()
-async def play(context, *args):
-    """Play a midi file"""
-    print(f"Handle play [{args}]")
-
-    if context.author.voice is None or context.author.voice.channel is None:
-        await context.channel.send(f"{context.author.mention} You must be connected to a voice channel before to run this command.")
-        return
-
-    author_voice_channel = context.author.voice.channel
-    voice_client = None
-
-    for vc in bot.voice_clients:
-        if vc.is_playing():
-            await context.channel.send(f"{context.author.mention} Already playing in ``#{vc.channel.name}`` channel, please wait or run ``!stop`` command.")
-            return
-        if vc.channel == author_voice_channel:
-            # Same channel
-            voice_client = vc
-        else:
-            # Another channel
-            await vc.disconnect()
-
-    # Search the song
-    matching_songs = firbot.midiplayer.midiplayer.search_song(args[0])
-    matching_count = len(matching_songs)
-    if matching_count != 1:
-        if matching_count > 1:
-            await context.channel.send(f"{context.author.mention} Available songs matching `{args[0]}`:\n" + '```css\n' + '- ' + '\n- '.join(matching_songs) + '```\nPlease be more accurate.')
-        else:
-            await context.channel.send(f"{context.author.mention} No song matching `{args[0]}` found.")
-        return
-
-    song = matching_songs[0]
-    args = args[1:]
-
-    # Connect to channel if not already connected
-    if voice_client is None:
-        voice_client = await author_voice_channel.connect()
-
-    print(f"Playing on channel [{voice_client.channel.name}]")
-    await context.channel.send(f"Playing `{song}` on channel `#{voice_client.channel.name}`.")
-    stream = firbot.midiplayer.midiplayer.read(song, args)
-
-    if stream is None:
-        await context.channel.send(f"{context.author.mention} Unable to play this song.")
-        await voice_client.disconnect()
-        return
-
-    src = discord.FFmpegPCMAudio(stream, pipe=True)
-    await bot.change_presence(activity=discord.Game(os.path.basename(song)))
-    voice_client.play(src, after=after_play)
-
-@bot.command()
-async def stop(context, *args):
-    """Stop the playback then stop and disconnect all voice clients"""
-    print(f"Handle stop")
-    firbot.midiplayer.midiplayer.stop()
-    await bot.change_presence(activity=None)
-    for i,vc in enumerate(bot.voice_clients):
-        print(f"VoiceClient {i} :")
-        if not vc.channel is None:
-            print(f"`- Connected on {vc.channel.name}")
-            print(f"`- Stopping music`")
-            vc.stop()
-            print(f"`- Disconnecting from channel`")
-            await vc.disconnect()
-
-@bot.command()
-async def songs(context, *args):
-    """List available midi files"""
-    for line in firbot.midiplayer.midiplayer.list_songs(args):
-        await context.send(line)
-
-@bot.command()
-async def playlists(context, *args):
-    """List available playlists"""
-    for line in firbot.midiplayer.midiplayer.list_playlists(args):
-        await context.send(line)
+bot.add_cog(MidiPlayer(bot))
 
 bot.run(os.environ['FIRBOT_TOKEN'])

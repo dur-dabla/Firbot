@@ -1,29 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import os
-import io
 import glob
-import subprocess
 from os import path
 
-class MidiPlayer:
-    """
-    Play a midi file using timidity sequencer
-    """
-
+class Utils:
     # Midi files home
     MIDI_FILES_HOME = path.join(os.environ['HOME'], "midi")
 
     # Midi file extension
     MID_EXT = '.mid'
-
-    # Sequencer command
-    SEQUENCER_CMD  = 'timidity'
-    # Sequencer aruments
-    SEQUENCER_ARGS = [ '--quiet', '--quiet', '-Ow', '-o', '-' ]
-
-    # Sequencer process
-    seq_process = None
 
     def is_matching(self, str_ref, str_find):
         return str_ref.lower().startswith(str_find.lower())
@@ -39,25 +25,6 @@ class MidiPlayer:
         matching_songs = [s for s in available_songs if self.is_matching(s, song)]
         print(f"Matching songs : {matching_songs}")
         return matching_songs
-
-    def read(self, song, args) -> io.BufferedIOBase:
-        """ Runs the sequencer subprocess and returns the standard output """
-        path = self.get_full_path(song)
-        print(f"Song: {song} => {path}")
-        print(f"Args: {list(args)}")
-
-        if path is None:
-            print(f"Song not found.")
-            return None
-
-        self.seq_process = subprocess.Popen([self.SEQUENCER_CMD, *self.SEQUENCER_ARGS, path, *args], stdout=subprocess.PIPE)
-        return self.seq_process.stdout
-
-    def stop(self):
-        """Sends SIGTERM to the sequencer process"""
-        if self.seq_process is not None:
-            self.seq_process.terminate()
-            self.seq_process = None
 
     def list_songs(self, args):
         available_categories = self.list_available_categories()
@@ -96,4 +63,4 @@ class MidiPlayer:
         return [dir for dir in os.listdir(self.MIDI_FILES_HOME) if path.isdir(path.join(self.MIDI_FILES_HOME, dir))]
 
 # Single instance
-midiplayer = MidiPlayer()
+utils = Utils()
