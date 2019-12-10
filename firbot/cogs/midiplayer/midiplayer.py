@@ -37,7 +37,7 @@ class MidiPlayer(commands.Cog):
 
     def read(self, song, args) -> io.BufferedIOBase:
         """ Runs the sequencer subprocess and returns the standard output """
-        path = utils.utils.get_full_path(song)
+        path = utils.get_full_path(song)
         print(f"Song: {song} => {path}")
         print(f"Args: {list(args)}")
 
@@ -78,7 +78,7 @@ class MidiPlayer(commands.Cog):
                 await vc.disconnect()
 
         # Search the song
-        matching_songs = utils.utils.search_song(args[0])
+        matching_songs = utils.search_song(args[0])
         matching_count = len(matching_songs)
         if matching_count != 1:
             if matching_count > 1:
@@ -125,11 +125,11 @@ class MidiPlayer(commands.Cog):
     @commands.command()
     async def songs(self, context, *args):
         """List available midi files"""
-        for line in utils.utils.list_songs(args):
+        for line in utils.list_songs(args):
             await context.send(line)
 
     @commands.command()
     async def playlists(self, context, *args):
         """List available playlists"""
-        for line in utils.utils.list_playlists(args):
+        for line in utils.list_playlists(args):
             await context.send(line)
