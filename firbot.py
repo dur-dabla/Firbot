@@ -11,7 +11,7 @@ import discord.ext.commands
 import pytz
 from crontab import CronTab
 
-from firbot.cogs.midiplayer.midiplayer import MidiPlayer
+from firbot.cogs.midiplayer import MidiPlayer
 import firbot.cherchord
 import firbot.data
 
