@@ -3,6 +3,7 @@
 from . import utils
 
 import io
+import os
 import asyncio
 import discord
 import subprocess
@@ -12,6 +13,12 @@ from discord.ext import commands
 class MidiPlayer(commands.Cog):
     """
     Play a midi file using timidity sequencer
+    
+    Provided bot commands:
+    - play
+    - stop
+    - songs
+    - playlists
     """
 
     # Sequencer command
@@ -54,6 +61,18 @@ class MidiPlayer(commands.Cog):
             self.seq_process.terminate()
             self.seq_process = None
 
+    async def find_song(self, context, song):
+        matching_songs = utils.search_song(song)
+        matching_count = len(matching_songs)
+        if matching_count != 1:
+            if matching_count > 1:
+                await context.send(f"{context.author.mention} Available songs matching `{song}`:\n" + '```css\n' + '- ' + '\n- '.join(matching_songs) + '```\nPlease be more accurate.')
+            else:
+                await context.send(f"{context.author.mention} No song matching `{song}` found.")
+            return None
+
+        return matching_songs[0]
+        
     @commands.command()
     async def play(self, context, *args):
         """Play a midi file"""
@@ -78,16 +97,10 @@ class MidiPlayer(commands.Cog):
                 await vc.disconnect()
 
         # Search the song
-        matching_songs = utils.search_song(args[0])
-        matching_count = len(matching_songs)
-        if matching_count != 1:
-            if matching_count > 1:
-                await context.channel.send(f"{context.author.mention} Available songs matching `{args[0]}`:\n" + '```css\n' + '- ' + '\n- '.join(matching_songs) + '```\nPlease be more accurate.')
-            else:
-                await context.channel.send(f"{context.author.mention} No song matching `{args[0]}` found.")
+        song = await self.find_song(context, args[0])
+        if song is None:
             return
-
-        song = matching_songs[0]
+    
         args = args[1:]
 
         # Connect to channel if not already connected
@@ -133,3 +146,31 @@ class MidiPlayer(commands.Cog):
         """List available playlists"""
         for line in utils.list_playlists(args):
             await context.send(line)
+
+    @commands.command()
+    async def store(self, context, *args):
+        print(f"Handle store [{args}]")
+
+        if len(args) < 1:
+            await context.send(f"{context.author.mention} Please specify the playlist where to store the song.")
+            return
+
+        if len(context.message.attachments) < 1:
+            await context.send(f"{context.author.mention} Please join a midi file.")
+            return
+
+        dir = args[0]
+        if dir not in utils.list_available_categories():
+            await context.send(f"{context.author.mention} Unknown playlist: `{args[0]}`.")
+            return
+
+        for i,att in enumerate(context.message.attachments):
+            filename = att.filename
+            if not filename.endswith(utils.MID_EXT):
+                print(f"{filename} not a midi file.")
+                continue
+
+            # TODO Strip unwanted chars from filename
+
+            print(f"Saving file {i} : {filename} into {dir}")
+            await att.save(os.path.join(utils.MIDI_FILES_HOME, dir, filename))
