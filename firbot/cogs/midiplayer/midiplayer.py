@@ -4,6 +4,7 @@ from . import utils
 
 import io
 import os
+import magic
 import asyncio
 import discord
 import subprocess
@@ -174,3 +175,53 @@ class MidiPlayer(commands.Cog):
 
             print(f"Saving file {i} : {filename} into {dir}")
             await att.save(os.path.join(utils.MIDI_FILES_HOME, dir, filename))
+
+    @commands.command()
+    async def convert(self, context, *args):
+        print(f"Handle convert [{args}]")
+
+        if len(context.message.attachments) < 1 and len(args) < 1:
+            await context.send(f"{context.author.mention} Please join a midi file or give the song name")
+            return
+
+        if len(context.message.attachments) >= 1:
+            att = context.message.attachments[0]
+            filename = att.filename
+            if not filename.endswith(utils.MID_EXT):
+                await context.send(f"{context.author.mention} : `{filename}` not a midi file.")
+                return
+
+            # Download the midi file in /tmp
+            print(f"Saving file {filename} into /tmp")
+            full_mid_path = os.path.join('/tmp/', filename)
+            filename,ext = os.path.splitext(filename)
+            await att.save(full_mid_path)
+            mime = magic.Magic(mime=True).from_file(full_mid_path)
+            print(f"{filename} mime: {mime}")
+            if mime != 'audio/midi':
+                await context.send(f"{context.author.mention} : `{filename}{ext}` not a midi file.")
+                return
+
+            # TODO Strip unwanted chars from filename
+
+        elif len(args) >= 1:
+            # Search the song
+            song = await self.find_song(context, args[0])
+            if song is None:
+                return
+            filename,ext = os.path.splitext(song)
+            print(f"Convert {song} to {filename}.wav")
+            full_mid_path = utils.get_full_path(song)
+            print(f"{full_mid_path} to /tmp/{filename}.wav")
+
+        await context.send("Converting the midi file, please wait...")
+        print("executing: " + " ".join([self.SEQUENCER_CMD, '-o', f"/tmp/{filename}.wav", full_mid_path]))
+        sp = subprocess.Popen([self.SEQUENCER_CMD, '-Ow', '-o', f"/tmp/{filename}.wav", full_mid_path])
+        sp.wait()
+        sp = subprocess.Popen(['lame', f"/tmp/{filename}.wav"])
+        sp.wait()
+        os.unlink(os.path.join("/tmp", f"{filename}.wav"))
+        p = os.path.join("/tmp", f"{filename}.mp3")
+        print(p)
+        await context.send("Your file is ready !", file=discord.File(p))
+        os.unlink(p)
