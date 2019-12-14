@@ -15,6 +15,7 @@ setup(
        'ansicolors',
        'crontab',
        'discord',
-       'pytz'
+       'pytz',
+       'python-magic'
    ]
 )
