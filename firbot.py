@@ -84,6 +84,20 @@ async def cherchord(context, *args):
         await context.send(line)
 
 @bot.command()
+async def say(context, *args):
+    """Simply make the bot say something in a channel"""
+    print(f"Handle say {args}")
+
+    if len(args) < 2:
+        await context.send(f"{context.author.mention} Usage: `{bot.command_prefix}say [channel] [message]`.")
+
+    for chan in bot.get_all_channels():
+        print(f"Channel : {chan.name}")
+        if chan.name == args[0]:
+            await chan.send(" ".join(args[1:]))
+            break
+
+@bot.command()
 async def quit(context):
     print(f"Handle quit")
     if ADMIN_ROLE in list(map(lambda r: r.name, context.author.roles)):
@@ -92,6 +106,7 @@ async def quit(context):
     else:
         print(f'Member {context.author.name} not allowed to run this command.')
 
+# Commands: play, stop, songs, playlists
 bot.add_cog(MidiPlayer(bot))
 
 bot.run(os.environ['FIRBOT_TOKEN'])
