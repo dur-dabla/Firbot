@@ -15,6 +15,8 @@ setup(
        'ansicolors',
        'crontab',
        'discord',
-       'pytz'
+       'pytz',
+       'caldav',
+       'icalendar'
    ]
 )

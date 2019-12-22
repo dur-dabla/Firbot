@@ -12,6 +12,7 @@ import pytz
 from crontab import CronTab
 
 from firbot.cogs.midiplayer import MidiPlayer
+from firbot.cogs.organizer import Organizer
 import firbot.cherchord
 import firbot.data
 
@@ -108,5 +109,7 @@ async def quit(context):
 
 # Commands: play, stop, songs, playlists
 bot.add_cog(MidiPlayer(bot))
+# Commands: collections, events, todos
+bot.add_cog(Organizer(bot))
 
 bot.run(os.environ['FIRBOT_TOKEN'])
